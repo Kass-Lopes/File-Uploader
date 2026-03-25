@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File-Uploader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/static/css.css">
+  <script src="/static/js.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">File<span>Uploader</span></div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">{{ .Stats.TotalFiles }}</div>
+        <div class="stat-label">arquivos</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ humanSize .Stats.TotalSize }}</div>
+        <div class="stat-label">armazenado</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ .Stats.TotalDownloads }}</div>
+        <div class="stat-label">downloads</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  {{ if .Flash }}
+    <div class="flash flash-ok">✓ {{ .Flash }}</div>
+  {{ end }}
+  {{ if .Error }}
+    <div class="flash flash-err">✗ {{ .Error }}</div>
+  {{ end }}
+
+  <!-- Upload Card -->
+  <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="upload-card" id="drop-zone">
+      <label for="file-input" class="drop-zone" id="drop-label">
+        <div class="drop-icon">📤</div>
+        <div class="drop-title">Arraste um arquivo ou clique para selecionar</div>
+        <div class="drop-sub">Tamanho máximo: 50 MB</div>
+        <div class="file-name-preview" id="file-preview"></div>
+      </label>
+      <input type="file" name="file" id="file-input" required>
+      <input
+        class="desc-field"
+        type="text"
+        name="description"
+        placeholder="Descrição opcional..."
+        maxlength="255"
+      >
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-label" id="progress-label">0%</div>
+      </div>
+      <button type="submit" class="upload-btn" id="upload-btn">Enviar arquivo</button>
+    </div>
+  </form>
+
+  <!-- File List -->
+  <div class="section-title">{{ len .Files }} arquivo(s) armazenado(s)</div>
+
+  <div class="file-list">
+    {{ if not .Files }}
+      <div class="empty-state">
+        <div class="big">🗄</div>
+        <p>Nenhum arquivo ainda. Faça o primeiro upload!</p>
+      </div>
+    {{ else }}
+      {{ range .Files }}
+      <div class="file-row">
+        <div class="file-icon" style="background: {{ mimeColor .MimeType }}22; color: {{ mimeColor .MimeType }}">
+          {{ if eq (mimeIcon .MimeType) "image" }}
+          {{ else if eq (mimeIcon .MimeType) "video" }}
+          {{ else if eq (mimeIcon .MimeType) "audio" }}
+          {{ else if eq (mimeIcon .MimeType) "pdf"   }}
+          {{ else if eq (mimeIcon .MimeType) "archive" }}
+          {{ else if eq (mimeIcon .MimeType) "text" }}
+          {{ else }}📎{{ end }}
+        </div>
+        <div class="file-info">
+          <div class="file-name" title="{{ .OriginalName }}">{{ .OriginalName }}</div>
+          <div class="file-meta">
+            <span>{{ humanSize .Size }}</span>
+            <span>{{ formatDate .CreatedAt }}</span>
+            <span>↓ {{ .DownloadCount }}×</span>
+          </div>
+          {{ if .Description }}
+            <div class="file-desc">{{ .Description }}</div>
+          {{ end }}
+        </div>
+        <div class="file-actions">
+          <a class="btn-dl" href="/download/{{ .ID }}">Baixar</a>
+          <form action="/delete/{{ .ID }}" method="POST"
+                onsubmit="return confirm('Remover {{ .OriginalName }}?')">
+            <button type="submit" class="btn-del">✕</button>
+          </form>
+        </div>
+      </div>
+      {{ end }}
+    {{ end }}
+  </div>
+
+</div>
+</body>
+</html>
