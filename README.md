@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # File-Uploader — em Go + SQLite
 
 ## Instala as dependências
@@ -17,4 +16,4 @@
 =======
 # File-Uploader
 Um simples sistema para Upload local de arquivos.
->>>>>>> 7e2253bf6213a102c029495f2e9fdaf470e1e5c3
+
